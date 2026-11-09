@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fashion Experience · Private Access</title>
+<meta name="description" content="Fashion Experience — Private Access. Pedro del Hierro, Women'secret, Springfield y Cortefiel.">
+<meta name="theme-color" content="#121212">
+<meta name="robots" content="noindex">
+<link rel="preload" href="assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/img/pdh.jpg" as="image" fetchpriority="high">
+<style>
+@font-face{font-family:'Public Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url(assets/fonts/public-sans-latin-wght-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-display:swap;src:url(assets/fonts/instrument-serif-latin-400-italic.woff2) format('woff2')}
+:root{
+  --ink:#121212; --ink-2:#1D1C1B; --ink-3:#2A2826; --paper:#F4F2EE; --white:#FFFFFF; --line:#DFDBD4; --line-d:#34312E;
+  --muted:#6B665F; --muted-d:#9F9890; --sand:#C8B69A; --error:#A3271F;
+  --sans:'Public Sans','Helvetica Neue',Arial,sans-serif; --serif:'Instrument Serif',Georgia,serif;
+  --r-card:16px; --r-btn:12px; --r-in:10px; --gutter:18px; --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100svh}
+button,input,select{font:inherit;color:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--sand);outline-offset:3px}
+h1:focus,h2:focus{outline:none}
+
+.screen{display:none;min-height:100svh;flex-direction:column}
+.screen.is-active{display:flex;animation:enter .5s var(--ease) both}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.wrap{width:100%;max-width:560px;margin:0 auto;padding:0 var(--gutter)}
+.over{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+em.serif{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:0}
+
+/* Logos: altura base × ajuste óptico de cada marca */
+.logo{display:block;height:calc(var(--lh,16px) * var(--k,1));width:auto;max-width:100%;object-fit:contain;object-position:left center}
+
+/* Botones */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:54px;padding:0 22px;border:1px solid transparent;border-radius:var(--r-btn);
+  font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;cursor:pointer;transition:background .2s,color .2s,opacity .2s,transform .15s}
+.btn:active{transform:scale(.985)}
+.btn--light{background:var(--white);color:var(--ink)}
+.btn--dark{background:var(--ink);color:var(--white)}
+.btn--dark:hover{background:#000}
+.btn--outline{background:transparent;color:var(--white);border-color:#4A4642}
+.btn[disabled]{opacity:.3;cursor:not-allowed;transform:none}
+.btn .spin{width:16px;height:16px;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite;display:none}
+.btn.is-loading .spin{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.link{background:none;border:0;color:inherit;text-decoration:underline;text-underline-offset:4px;cursor:pointer;font-size:14px;padding:8px 0}
+
+/* ---------- 1. Bienvenida ---------- */
+#s-welcome{background:var(--ink);color:var(--white)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(16px + env(safe-area-inset-top)) var(--gutter) 0}
+.topbar .over{font-size:10px;white-space:nowrap}
+.topbar .ev{color:var(--muted-d);font-size:10px;letter-spacing:.14em;text-transform:uppercase;text-align:right}
+.hero-media{position:relative;margin:14px var(--gutter) 0;border-radius:20px;overflow:hidden;background:var(--ink-2);aspect-ratio:4/5;max-height:54svh}
+.slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:0;transition:opacity 1s ease}
+.slide.is-on{opacity:1}
+.hero-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28) 0,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 62%,rgba(0,0,0,.55));pointer-events:none}
+.bars{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:4px;z-index:2}
+.bars span{flex:1;height:2px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}
+.bars span i{display:block;height:100%;width:0;background:#fff}
+.bars span.done i{width:100%}
+.bars span.on i{animation:bar var(--dur,4.5s) linear forwards}
+@keyframes bar{to{width:100%}}
+.hero-logo{position:absolute;left:16px;bottom:16px;z-index:2;--lh:17px;max-width:62%;transition:opacity .5s}
+.hero-text{padding:22px var(--gutter) 0}
+.hero-text h1{font-size:clamp(32px,9vw,46px);line-height:1.02;font-weight:500;letter-spacing:-.025em}
+.hero-text h1 em{display:block;font-size:1.08em;color:var(--sand);margin-top:2px}
+.hero-text .claim{margin-top:10px;font-size:16px;color:#CFCAC3;font-weight:300}
+.hero-cta{padding:20px var(--gutter) 0}
+.hero-cta .teaser{margin-top:12px;font-size:13px;color:var(--muted-d);text-align:center}
+.hero-cta .again{display:block;margin:4px auto 0;color:var(--sand)}
+.logobar{display:grid;grid-template-columns:1fr 1fr;margin:26px var(--gutter) 0;border-top:1px solid var(--line-d)}
+.logobar div{display:flex;align-items:center;justify-content:center;height:62px;border-bottom:1px solid var(--line-d)}
+.logobar div:nth-child(odd){border-right:1px solid var(--line-d)}
+.logobar .logo{--lh:13px;opacity:.72;object-position:center}
+.legal{padding:18px var(--gutter) calc(20px + env(safe-area-inset-bottom));font-size:11px;color:#6D6862;text-align:center}
+
+/* ---------- Pantallas claras ---------- */
+.screen--paper{background:var(--paper)}
+.head{padding:calc(14px + env(safe-area-inset-top)) 0 0}
+.steps{display:flex;align-items:center;gap:12px;color:var(--muted)}
+.steps .back{background:var(--white);border:1px solid var(--line);border-radius:50%;cursor:pointer;width:40px;height:40px;display:grid;place-items:center;color:var(--ink);flex:none}
+.bar{flex:1;height:2px;background:var(--line);border-radius:2px;position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink);transition:width .5s var(--ease)}
+.title{margin:22px 0 6px;font-size:clamp(28px,7.6vw,38px);line-height:1.06;font-weight:500;letter-spacing:-.025em}
+.lede{color:var(--muted);font-size:15px}
+
+/* 2. Marcas */
+.brands{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0 128px}
+.bcard{position:relative;aspect-ratio:4/5;border:0;border-radius:var(--r-card);overflow:hidden;cursor:pointer;text-align:left;background:var(--ink-2);color:var(--white);
+  -webkit-tap-highlight-color:transparent;transition:transform .25s var(--ease),box-shadow .25s}
+.bcard img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 25%;transition:transform .6s var(--ease)}
+.bcard::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 42%,rgba(0,0,0,.72));transition:background .3s}
+.bcard .txt{position:absolute;left:12px;right:12px;bottom:12px;z-index:2}
+.bcard .logo{--lh:14px}
+.bcard .bl{display:block;margin-top:7px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.82)}
+.bcard .chk{position:absolute;top:10px;right:10px;z-index:3;width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);background:rgba(0,0,0,.18);display:grid;place-items:center;transition:background .2s,border-color .2s}
+.bcard .chk svg{opacity:0;transform:scale(.6);transition:all .2s var(--ease)}
+.bcard[aria-pressed="true"]{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.bcard[aria-pressed="true"] .chk{background:var(--white);border-color:var(--white)}
+.bcard[aria-pressed="true"] .chk svg{opacity:1;transform:none}
+.bcard[aria-pressed="true"] img.ph{transform:scale(1.04)}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(244,242,238,0),var(--paper) 32%);padding:26px 0 calc(14px + env(safe-area-inset-bottom))}
+.dock .count{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:10px;min-height:17px;font-weight:500}
+
+/* 3. Formulario */
+form{margin:20px 0 40px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.chip{display:flex;align-items:center;height:30px;padding:0 12px;background:var(--white);border:1px solid var(--line);border-radius:30px}
+.chip .logo{--lh:9px;object-position:center}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:7px}
+.opt{color:var(--muted);letter-spacing:.02em;text-transform:none;font-weight:400}
+.in{width:100%;height:52px;padding:0 14px;background:var(--white);border:1px solid var(--line);border-radius:var(--r-in);font-size:17px;transition:border-color .2s,box-shadow .2s}
+.in:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.phone{display:grid;grid-template-columns:118px 1fr;gap:8px}
+select.in{appearance:none;-webkit-appearance:none;padding:0 26px 0 12px;font-size:16px;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 15px) 24px,calc(100% - 10px) 24px;background-size:5px 5px;background-repeat:no-repeat}
+.in[aria-invalid="true"]{border-color:var(--error);box-shadow:0 0 0 1px var(--error)}
+.err{color:var(--error);font-size:13px;margin-top:6px}
+.err:empty{display:none}
+.checks{background:var(--white);border:1px solid var(--line);border-radius:var(--r-card);padding:16px 14px 4px;margin:6px 0 18px}
+.check{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start;margin-bottom:12px;font-size:14px;line-height:1.45;cursor:pointer}
+.check input{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:1.5px solid var(--ink);border-radius:6px;background:var(--white);display:grid;place-items:center;margin-top:1px;cursor:pointer}
+.check input:checked{background:var(--ink)}
+.check input:checked::after{content:"";width:10px;height:6px;border-left:2px solid var(--white);border-bottom:2px solid var(--white);transform:rotate(-45deg) translate(1px,-1px)}
+.check input[aria-invalid="true"]{border-color:var(--error);box-shadow:0 0 0 1px var(--error)}
+.check-err{margin:-6px 0 12px 36px}
+details{margin:-4px 0 14px 36px;font-size:13px;color:var(--muted)}
+details summary{cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:var(--ink);list-style:none}
+details summary::-webkit-details-marker{display:none}
+details p{margin-top:8px;line-height:1.55}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.alert{border:1px solid var(--error);color:var(--error);background:#F8ECEA;padding:12px 14px;font-size:14px;margin:0 0 16px;border-radius:var(--r-in)}
+.alert:empty{display:none}
+.fine{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+
+/* ---------- 4. Vale ---------- */
+#s-voucher{background:var(--ink);color:var(--white)}
+#s-voucher .over{color:var(--muted-d)}
+#s-voucher .title{color:var(--white);margin-top:20px}
+#s-voucher .lede{color:var(--muted-d)}
+.repeat{color:var(--sand);font-size:14px;margin-top:10px}
+.ticket{position:relative;margin:22px 0 16px;background:#FAF9F7;color:var(--ink);border-radius:18px;overflow:hidden;animation:rise .7s .1s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
+.ticket .top{padding:20px 20px 18px}
+.ticket .k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ticket .amount{font-size:clamp(60px,18vw,84px);line-height:1;font-weight:600;letter-spacing:-.04em;margin:10px 0 6px}
+.ticket .amount small{font-size:.34em;font-weight:500;letter-spacing:0;margin-right:6px;vertical-align:1.15em}
+.ticket .where{font-size:13px;color:var(--muted)}
+.tlogos{display:grid;grid-template-columns:1fr 1fr;margin-top:16px;border-top:1px solid var(--line)}
+.tlogos div{display:flex;align-items:center;justify-content:center;height:52px;border-bottom:1px solid var(--line)}
+.tlogos div:nth-child(odd){border-right:1px solid var(--line)}
+.tlogos .logo{--lh:11px;object-position:center}
+.perf{position:relative;height:0;border-top:1.5px dashed var(--line);margin:0 16px}
+.perf::before,.perf::after{content:"";position:absolute;top:-12px;width:24px;height:24px;border-radius:50%;background:var(--ink)}
+.perf::before{left:-28px}.perf::after{right:-28px}
+.ticket .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 14px;padding:18px 20px 4px}
+.ticket .full{grid-column:1/-1}
+.ticket .v{font-size:16px;font-weight:600;margin-top:3px;word-break:break-word}
+.ticket .code{letter-spacing:.06em}
+.ticket .conds{padding:12px 20px 18px;font-size:12px;color:var(--muted);line-height:1.55}
+.ticket .conds li{list-style:none;padding-left:12px;position:relative}
+.ticket .conds li::before{content:"·";position:absolute;left:0}
+.dl-msg{font-size:13px;color:var(--muted-d);text-align:center;margin-top:10px;min-height:20px}
+.note{font-size:14px;color:#CFCAC3;line-height:1.55;padding:16px 0;margin-top:8px;border-top:1px solid var(--line-d)}
+.note strong{color:var(--white);font-weight:600}
+.foot{margin-top:auto;padding:18px 0 calc(22px + env(safe-area-inset-bottom));text-align:center;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6D6862}
+
+@media (min-width:860px){
+  #s-welcome.is-active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr auto;column-gap:56px;padding:0 48px}
+  #s-welcome .topbar{grid-column:1/-1;padding-left:0;padding-right:0}
+  #s-welcome .hero-media{grid-row:2/4;margin:24px 0 40px;max-height:none;align-self:center;width:100%;max-width:560px;justify-self:end}
+  #s-welcome .hero-side{grid-column:2;grid-row:2;align-self:center;max-width:460px}
+  #s-welcome .hero-text,#s-welcome .hero-cta,#s-welcome .legal{padding-left:0;padding-right:0}
+  #s-welcome .logobar{margin-left:0;margin-right:0}
+  .brands{grid-template-columns:repeat(4,1fr)}
+  #s-brands .wrap{max-width:980px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<main>
+
+<!-- 1. Bienvenida -->
+<section class="screen is-active" id="s-welcome" aria-labelledby="t-welcome">
+  <div class="topbar">
+    <span class="over">Fashion Experience</span>
+    <span class="ev" data-cfg="eventLine"></span>
+  </div>
+  <div class="hero-media" id="hero" aria-hidden="true">
+    <div class="bars" id="bars"></div>
+    <img class="hero-logo logo" id="hero-logo" alt="">
+  </div>
+  <div class="hero-side">
+    <div class="hero-text">
+      <h1 id="t-welcome" tabindex="-1"><span data-cfg="title"></span><em class="serif" data-cfg="subtitle"></em></h1>
+      <p class="claim" data-cfg="claim"></p>
+    </div>
+    <div class="hero-cta">
+      <button class="btn btn--light" type="button" id="go-brands"><span data-cfg="cta"></span></button>
+      <p class="teaser" data-cfg="teaser"></p>
+      <button class="link again" type="button" id="see-voucher" hidden>Ya me registré: ver mi vale</button>
+    </div>
+    <div class="logobar" id="logobar" role="list" aria-label="Marcas participantes"></div>
+    <p class="legal">Registro exclusivo para mayores de 18 años.</p>
+  </div>
+</section>
+
+<!-- 2. Marcas -->
+<section class="screen screen--paper" id="s-brands" aria-labelledby="t-brands">
+  <div class="wrap">
+    <div class="head">
+      <div class="steps">
+        <button class="back" type="button" data-go="s-welcome" aria-label="Volver"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <span class="bar"><i style="width:50%"></i></span>
+        <span class="over">1 / 2</span>
+      </div>
+      <h2 class="title" id="t-brands" tabindex="-1">¿Qué marcas te <em class="serif">inspiran?</em></h2>
+      <p class="lede">Elige una o varias. Así te contamos solo lo que te interesa.</p>
+    </div>
+    <div class="brands" id="brands" role="group" aria-labelledby="t-brands"></div>
+  </div>
+  <div class="dock">
+    <div class="wrap">
+      <p class="count" id="count" aria-live="polite"></p>
+      <button class="btn btn--dark" type="button" id="go-form" disabled>Continuar</button>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Registro -->
+<section class="screen screen--paper" id="s-form" aria-labelledby="t-form">
+  <div class="wrap">
+    <div class="head">
+      <div class="steps">
+        <button class="back" type="button" data-go="s-brands" aria-label="Volver a las marcas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <span class="bar"><i style="width:100%"></i></span>
+        <span class="over">2 / 2</span>
+      </div>
+      <h2 class="title" id="t-form" tabindex="-1">Tu acceso <em class="serif">exclusivo</em></h2>
+      <p class="lede">Solo unos datos y recibes tu vale al instante.</p>
+    </div>
+
+    <form id="form" novalidate>
+      <div class="chips" id="chips" role="list" aria-label="Marcas elegidas"></div>
+      <div class="alert" id="alert" role="alert"></div>
+
+      <div class="row">
+        <div class="field">
+          <label for="firstName">Nombre</label>
+          <input class="in" id="firstName" name="firstName" autocomplete="given-name" autocapitalize="words" maxlength="60" required aria-describedby="e-firstName">
+          <p class="err" id="e-firstName"></p>
+        </div>
+        <div class="field">
+          <label for="lastName">Apellido</label>
+          <input class="in" id="lastName" name="lastName" autocomplete="family-name" autocapitalize="words" maxlength="60" required aria-describedby="e-lastName">
+          <p class="err" id="e-lastName"></p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="phone">WhatsApp</label>
+        <div class="phone">
+          <select class="in" id="countryCode" name="countryCode" aria-label="Código de país">
+            <option value="591" selected>BO +591</option><option value="54">AR +54</option><option value="55">BR +55</option>
+            <option value="56">CL +56</option><option value="51">PE +51</option><option value="595">PY +595</option>
+            <option value="598">UY +598</option><option value="57">CO +57</option><option value="593">EC +593</option>
+            <option value="52">MX +52</option><option value="1">US +1</option><option value="34">ES +34</option>
+          </select>
+          <input class="in" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="7123 4567" maxlength="20" required aria-describedby="e-phone">
+        </div>
+        <p class="err" id="e-phone"></p>
+      </div>
+
+      <div class="field">
+        <label for="email">Correo electrónico <span class="opt">(opcional)</span></label>
+        <input class="in" id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" maxlength="120" aria-describedby="e-email">
+        <p class="err" id="e-email"></p>
+      </div>
+
+      <div class="hp" aria-hidden="true"><label>No completar <input name="website" id="website" tabindex="-1" autocomplete="off"></label></div>
+
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="adult" aria-describedby="e-adult"><span>Confirmo que soy mayor de 18 años.</span></label>
+        <p class="err check-err" id="e-adult"></p>
+
+        <label class="check"><input type="checkbox" id="privacy" aria-describedby="e-privacy"><span>Acepto el aviso de privacidad para registrar mi participación y recibir mi vale.</span></label>
+        <details>
+          <summary>Leer aviso de privacidad</summary>
+          <p id="privacy-text"></p>
+        </details>
+        <p class="err check-err" id="e-privacy"></p>
+
+        <label class="check"><input type="checkbox" id="marketing"><span>Quiero recibir novedades y promociones de estas marcas por WhatsApp o correo. <span class="opt">(Opcional)</span></span></label>
+      </div>
+
+      <button class="btn btn--dark" type="submit" id="submit"><span class="spin" aria-hidden="true"></span><span id="submit-label">Obtener mi vale</span></button>
+      <p class="fine">Tus datos se guardan de forma privada. Nunca te pediremos tu cédula ni datos bancarios.</p>
+    </form>
+  </div>
+</section>
+
+<!-- 4. Vale -->
+<section class="screen" id="s-voucher" aria-labelledby="t-voucher">
+  <div class="wrap" style="display:flex;flex-direction:column;min-height:100svh">
+    <div class="head" style="padding-top:calc(22px + env(safe-area-inset-top))">
+      <span class="over">Fashion Experience · <em class="serif" style="text-transform:none;font-size:14px;letter-spacing:0">Private Access</em></span>
+      <h2 class="title" id="t-voucher" tabindex="-1"></h2>
+      <p class="lede">Tu registro quedó confirmado. Este es tu vale digital.</p>
+      <p class="repeat" id="repeat" hidden>Ya tenías un registro con este WhatsApp, así que te mostramos tu mismo vale.</p>
+    </div>
+
+    <article class="ticket" aria-label="Vale digital">
+      <div class="top">
+        <p class="k">Vale digital</p>
+        <p class="amount"><small id="v-cur"></small><span id="v-amount"></span></p>
+        <p class="where" id="v-where"></p>
+        <div class="tlogos" id="v-logos"></div>
+      </div>
+      <div class="perf" aria-hidden="true"></div>
+      <div class="grid">
+        <div><p class="k">A nombre de</p><p class="v" id="v-name"></p></div>
+        <div><p class="k">N.º de vale</p><p class="v" id="v-id"></p></div>
+        <div><p class="k">Código</p><p class="v code" id="v-code"></p></div>
+        <div class="full"><p class="k">Vigencia</p><p class="v" id="v-valid"></p></div>
+      </div>
+      <ul class="conds" id="v-conds"></ul>
+    </article>
+
+    <button class="btn btn--light" type="button" id="download">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+      <span id="download-label">Descargar mi vale</span>
+    </button>
+    <p class="dl-msg" id="dl-msg" aria-live="polite"></p>
+
+    <p class="note"><strong>Presenta este vale en caja</strong> desde tu teléfono. Si la descarga no funciona en tu teléfono, haz una captura de pantalla. Si vuelves a escanear el QR en este teléfono, verás tu vale de nuevo.</p>
+    <p class="foot">Pedro del Hierro · Women'secret · Springfield · Cortefiel</p>
+  </div>
+</section>
+
+</main>
+
+<script src="config.js"></script>
+<script>
+(function () {
+  'use strict';
+  var cfg = window.FX_CONFIG || {};
+  var $ = function (s) { return document.querySelector(s); };
+  var STORE = 'fx-voucher-v2';
+  var brands = cfg.brands || [];
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function logoImg(b, dark, alt) {
+    var i = el('img', 'logo');
+    i.src = dark ? b.logoDark : b.logo;
+    i.alt = alt ? b.name : '';
+    i.decoding = 'async';
+    i.style.setProperty('--k', b.logoScale || 1);
+    return i;
+  }
+
+  /* ---------- Textos desde la configuración ---------- */
+  document.querySelectorAll('[data-cfg]').forEach(function (e) {
+    var v = cfg[e.getAttribute('data-cfg')];
+    if (v) e.textContent = v;
+  });
+  var p = cfg.privacy || {};
+  $('#privacy-text').textContent =
+    'Responsable del tratamiento: ' + (p.responsable || '') + '. ' +
+    'Usaremos tu nombre, WhatsApp, correo (si lo indicas) y las marcas que elegiste para registrar tu participación en Fashion Experience, emitir tu vale y gestionarlo en tienda. ' +
+    'Solo si marcas la casilla de novedades usaremos tus datos para enviarte comunicaciones comerciales, y puedes pedir que dejemos de hacerlo en cualquier momento. ' +
+    'Este registro es solo para mayores de 18 años. Para consultar, corregir o eliminar tus datos escribe a ' + (p.contacto || '') + '.';
+
+  /* ---------- Origen del QR (?o=stand) ---------- */
+  var origin = 'directo';
+  try {
+    var q = new URLSearchParams(location.search);
+    var o = (q.get('o') || q.get('src') || sessionStorage.getItem('fx-origin') || '').toLowerCase();
+    if (/^[a-z0-9][a-z0-9\-]{0,39}$/.test(o)) origin = o;
+    sessionStorage.setItem('fx-origin', origin);
+  } catch (e) {}
+
+  /* ---------- Portada: fotos que rotan + logo de la marca ---------- */
+  var slides = (cfg.heroSlides || []).filter(function (s) { return brands[s.brand]; });
+  var hero = $('#hero'), heroLogo = $('#hero-logo'), bars = $('#bars');
+  var slideEls = slides.map(function (s, i) {
+    var img = el('img', 'slide');
+    img.alt = ''; img.decoding = 'async';
+    if (i === 0) img.setAttribute('fetchpriority', 'high'); else img.loading = 'eager';
+    img.src = s.image;
+    hero.insertBefore(img, bars);
+    var b = el('span'); b.appendChild(el('i')); bars.appendChild(b);
+    return img;
+  });
+  var cur = -1, timer = null, DUR = 4500;
+  function showSlide(n) {
+    if (!slides.length) return;
+    cur = n % slides.length;
+    slideEls.forEach(function (img, i) { img.classList.toggle('is-on', i === cur); });
+    Array.prototype.forEach.call(bars.children, function (b, i) {
+      b.classList.toggle('done', i < cur); b.classList.remove('on');
+    });
+    var bar = bars.children[cur];
+    if (!reduced) { void bar.offsetWidth; bar.classList.add('on'); } else { bar.classList.add('done'); }
+    var b = brands[slides[cur].brand];
+    heroLogo.style.opacity = 0;
+    setTimeout(function () {
+      heroLogo.src = b.logo; heroLogo.style.setProperty('--k', b.logoScale || 1); heroLogo.style.opacity = 1;
+    }, reduced ? 0 : 200);
+  }
+  function play() {
+    clearTimeout(timer);
+    if (reduced || slides.length < 2 || !$('#s-welcome').classList.contains('is-active')) return;
+    timer = setTimeout(function () {
+      var next = (cur + 1) % slides.length, img = slideEls[next];
+      var go = function () { showSlide(next); play(); };
+      if (img.complete) go(); else img.addEventListener('load', go, { once: true });
+    }, DUR);
+  }
+  bars.style.setProperty('--dur', DUR + 'ms');
+  showSlide(0); play();
+
+  brands.forEach(function (b) {
+    var cell = el('div'); cell.setAttribute('role', 'listitem');
+    cell.appendChild(logoImg(b, false, true));
+    $('#logobar').appendChild(cell);
+  });
+
+  /* ---------- Tarjetas de marca ---------- */
+  var selected = [];
+  brands.forEach(function (b) {
+    var btn = el('button', 'bcard');
+    btn.type = 'button'; btn.setAttribute('aria-pressed', 'false'); btn.setAttribute('aria-label', b.name);
+    var ph = el('img', 'ph'); ph.src = b.image; ph.alt = ''; ph.decoding = 'async'; ph.loading = 'lazy';
+    btn.appendChild(ph);
+    var chk = el('span', 'chk'); chk.setAttribute('aria-hidden', 'true');
+    chk.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    btn.appendChild(chk);
+    var txt = el('span', 'txt'); txt.setAttribute('aria-hidden', 'true');
+    txt.appendChild(logoImg(b, false, false));
+    txt.appendChild(el('span', 'bl', b.line || ''));
+    btn.appendChild(txt);
+    btn.addEventListener('click', function () {
+      var k = selected.indexOf(b.name);
+      if (k === -1) selected.push(b.name); else selected.splice(k, 1);
+      btn.setAttribute('aria-pressed', k === -1 ? 'true' : 'false');
+      updateCount();
+    });
+    $('#brands').appendChild(btn);
+  });
+  function ordered() { return brands.filter(function (b) { return selected.indexOf(b.name) !== -1; }); }
+  function updateCount() {
+    var n = selected.length;
+    $('#count').textContent = n ? (n === 1 ? '1 marca elegida' : n + ' marcas elegidas') : 'Elige al menos una';
+    $('#go-form').disabled = n === 0;
+  }
+  updateCount();
+
+  /* ---------- Navegación ---------- */
+  function go(id) {
+    document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('is-active', s.id === id); });
+    window.scrollTo(0, 0);
+    if (id === 's-welcome') play(); else clearTimeout(timer);
+    var h = document.querySelector('#' + id + ' [tabindex="-1"]');
+    if (h) setTimeout(function () { h.focus({ preventScroll: true }); }, 30);
+  }
+  document.querySelectorAll('[data-go]').forEach(function (b) {
+    b.addEventListener('click', function () { go(b.getAttribute('data-go')); });
+  });
+  $('#go-brands').addEventListener('click', function () { go('s-brands'); });
+  $('#go-form').addEventListener('click', function () {
+    if (!selected.length) return;
+    var chips = $('#chips'); chips.textContent = '';
+    ordered().forEach(function (b) {
+      var c = el('span', 'chip'); c.setAttribute('role', 'listitem');
+      c.appendChild(logoImg(b, true, true)); chips.appendChild(c);
+    });
+    go('s-form');
+  });
+
+  /* ---------- Vale guardado en este teléfono ---------- */
+  function saved() { try { return JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) { return null; } }
+  if (saved()) {
+    $('#see-voucher').hidden = false;
+    $('#see-voucher').addEventListener('click', function () { var s = saved(); if (s) showVoucher(s, false); });
+  }
+
+  var current = null;
+  function validity(v) { return v.validFrom ? 'Del ' + v.validFrom + ' al ' + v.validUntil : 'Hasta el ' + v.validUntil; }
+  function showVoucher(s, repeat) {
+    current = s;
+    var v = s.voucher;
+    $('#t-voucher').textContent = 'Te damos la bienvenida, ' + s.firstName + '.';
+    $('#repeat').hidden = !repeat;
+    $('#v-cur').textContent = v.currency;
+    $('#v-amount').textContent = v.amount;
+    $('#v-where').textContent = cfg.voucherWhere || '';
+    var lg = $('#v-logos'); lg.textContent = '';
+    brands.forEach(function (b) { var d = el('div'); d.appendChild(logoImg(b, true, true)); lg.appendChild(d); });
+    $('#v-name').textContent = s.fullName || s.firstName;
+    $('#v-id').textContent = v.id;
+    $('#v-code').textContent = v.code;
+    $('#v-valid').textContent = validity(v);
+    var ul = $('#v-conds'); ul.textContent = '';
+    (v.conditions || []).forEach(function (c) { ul.appendChild(el('li', null, c)); });
+    $('#dl-msg').textContent = '';
+    go('s-voucher');
+  }
+
+  /* ---------- Descargar el vale como imagen ---------- */
+  function loadImg(src) {
+    return new Promise(function (res, rej) { var i = new Image(); i.onload = function () { res(i); }; i.onerror = rej; i.src = src; });
+  }
+  function rr(ctx, x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function spaced(ctx, px) { if ('letterSpacing' in ctx) ctx.letterSpacing = px + 'px'; }
+  function wrapLines(ctx, text, maxW) {
+    var words = String(text).split(' '), lines = [], line = '';
+    words.forEach(function (w) {
+      var t = line ? line + ' ' + w : w;
+      if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t;
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+  function fitText(ctx, text, weight, size, min, maxW) {
+    do { ctx.font = weight + ' ' + size + 'px "Public Sans", Arial, sans-serif'; size -= 2; } while (ctx.measureText(text).width > maxW && size >= min);
+  }
+  function renderVoucher(s) {
+    var v = s.voucher, W = 1080, H = 1500;
+    return Promise.all([
+      document.fonts ? document.fonts.load('600 40px "Public Sans"').then(function () { return document.fonts.load('italic 40px "Instrument Serif"'); }) : null
+    ].concat(brands.map(function (b) { return loadImg(b.logoDark); }))).then(function (res) {
+      var logos = res.slice(1);
+      var c = document.createElement('canvas'); c.width = W; c.height = H;
+      var x = c.getContext('2d'), F = '"Public Sans", Arial, sans-serif';
+      x.fillStyle = '#121212'; x.fillRect(0, 0, W, H);
+      x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+      x.fillStyle = '#9F9890'; x.font = '600 24px ' + F; spaced(x, 5);
+      x.fillText('FASHION EXPERIENCE', W / 2, 92);
+      spaced(x, 0); x.fillStyle = '#C8B69A'; x.font = 'italic 40px "Instrument Serif", Georgia, serif';
+      x.fillText('Private Access', W / 2, 140);
+
+      var TX = 60, TY = 190, TW = 960, TH = 1150, P = 64;
+      x.fillStyle = '#FAF9F7'; rr(x, TX, TY, TW, TH, 36); x.fill();
+      x.textAlign = 'left'; x.fillStyle = '#6B665F'; x.font = '600 22px ' + F; spaced(x, 4);
+      x.fillText('VALE DIGITAL', TX + P, TY + 82); spaced(x, 0);
+      x.fillStyle = '#121212'; x.font = '500 64px ' + F;
+      x.fillText(v.currency, TX + P, TY + 222);
+      var cw = x.measureText(v.currency + ' ').width;
+      x.font = '600 220px ' + F; spaced(x, -8);
+      x.fillText(String(v.amount), TX + P + cw, TY + 290); spaced(x, 0);
+      x.fillStyle = '#6B665F'; x.font = '400 26px ' + F;
+      wrapLines(x, cfg.voucherWhere || '', TW - P * 2).forEach(function (l, i) { x.fillText(l, TX + P, TY + 350 + i * 36); });
+
+      // Logos en cuadrícula 2×2
+      var gy = TY + 420, gh = 96, gw = (TW - P * 2) / 2;
+      x.strokeStyle = '#DFDBD4'; x.lineWidth = 2;
+      x.beginPath();
+      x.moveTo(TX + P, gy); x.lineTo(TX + TW - P, gy);
+      x.moveTo(TX + P, gy + gh); x.lineTo(TX + TW - P, gy + gh);
+      x.moveTo(TX + P, gy + gh * 2); x.lineTo(TX + TW - P, gy + gh * 2);
+      x.moveTo(TX + P + gw, gy); x.lineTo(TX + P + gw, gy + gh * 2);
+      x.stroke();
+      brands.forEach(function (b, i) {
+        var img = logos[i], lh = 26 * (b.logoScale || 1), lw = img.width * lh / img.height;
+        if (lw > gw - 60) { lw = gw - 60; lh = img.height * lw / img.width; }
+        var cx = TX + P + (i % 2) * gw + gw / 2, cy = gy + Math.floor(i / 2) * gh + gh / 2;
+        x.drawImage(img, cx - lw / 2, cy - lh / 2, lw, lh);
+      });
+
+      // Línea perforada
+      var py = gy + gh * 2 + 70;
+      x.setLineDash([12, 10]); x.beginPath(); x.moveTo(TX + 30, py); x.lineTo(TX + TW - 30, py); x.stroke(); x.setLineDash([]);
+      x.fillStyle = '#121212';
+      x.beginPath(); x.arc(TX, py, 22, 0, Math.PI * 2); x.fill();
+      x.beginPath(); x.arc(TX + TW, py, 22, 0, Math.PI * 2); x.fill();
+
+      function field(label, value, fx, fy, maxW) {
+        x.fillStyle = '#6B665F'; x.font = '600 20px ' + F; spaced(x, 4); x.fillText(label, fx, fy); spaced(x, 0);
+        x.fillStyle = '#121212'; fitText(x, value, 600, 38, 22, maxW); x.fillText(value, fx, fy + 50);
+      }
+      var col2 = TX + P + gw, fw = gw - 30;
+      field('A NOMBRE DE', s.fullName || s.firstName, TX + P, py + 80, fw);
+      field('N.º DE VALE', v.id, col2, py + 80, fw);
+      field('CÓDIGO', v.code, TX + P, py + 200, fw);
+      field('VIGENCIA', validity(v), col2, py + 200, fw);
+
+      x.fillStyle = '#6B665F'; x.font = '400 24px ' + F;
+      var cy2 = py + 320;
+      (v.conditions || []).forEach(function (t) {
+        wrapLines(x, '·  ' + t, TW - P * 2).forEach(function (l) { x.fillText(l, TX + P, cy2); cy2 += 34; });
+      });
+
+      x.textAlign = 'center'; x.fillStyle = '#FFFFFF'; x.font = '600 30px ' + F;
+      x.fillText('Presenta este vale en caja', W / 2, TY + TH + 76);
+      x.fillStyle = '#6D6862'; x.font = '500 20px ' + F; spaced(x, 3);
+      x.fillText('PEDRO DEL HIERRO · WOMEN\'SECRET · SPRINGFIELD · CORTEFIEL', W / 2, TY + TH + 122);
+      return new Promise(function (res2) { c.toBlob(res2, 'image/png'); });
+    });
+  }
+  window.__fxRenderVoucher = renderVoucher; // usado por las pruebas automáticas
+
+  $('#download').addEventListener('click', function () {
+    if (!current) return;
+    var btn = this, msg = $('#dl-msg');
+    btn.disabled = true; $('#download-label').textContent = 'Preparando…'; msg.textContent = '';
+    var name = 'vale-' + current.voucher.id + '.png';
+    renderVoucher(current).then(function (blob) {
+      if (!blob) throw new Error('blob');
+      var file = null;
+      try { file = new File([blob], name, { type: 'image/png' }); } catch (e) {}
+      var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+      if (file && touch && navigator.canShare && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file], title: 'Mi vale Fashion Experience' }).then(function () {
+          msg.textContent = 'Listo. Elige "Guardar imagen" para tenerlo en tu galería.';
+        }, function (e) { if (e && e.name !== 'AbortError') throw e; });
+      }
+      var url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      msg.textContent = 'Vale descargado. Revisa tus descargas o tu galería.';
+    }).catch(function () {
+      msg.textContent = 'No pudimos descargar el vale en este teléfono. Haz una captura de pantalla.';
+    }).then(function () {
+      btn.disabled = false; $('#download-label').textContent = 'Descargar mi vale';
+    });
+  });
+
+  /* ---------- Validación ---------- */
+  var NAME_RE;
+  try { NAME_RE = new RegExp("^[\\p{L}][\\p{L}\\p{M}\\s'’.\\-]{0,59}$", 'u'); } catch (e) { NAME_RE = /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'’.\-]{0,59}$/; }
+  var EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,190}\.[a-zA-Z]{2,24}$/;
+  function clean(v) { return String(v || '').replace(/\s+/g, ' ').trim(); }
+  function phoneOk(cc, raw) {
+    var d = String(raw || '').replace(/\D/g, '');
+    if (d.indexOf('00' + cc) === 0) d = d.slice(2 + cc.length);
+    else if (d.indexOf(cc) === 0 && d.length > (cc === '591' ? 8 : 10)) d = d.slice(cc.length);
+    d = d.replace(/^0+/, '');
+    if (cc === '591') return /^[67]\d{7}$/.test(d);
+    return d.length >= 6 && d.length + cc.length <= 15;
+  }
+  function setErr(id, msg) {
+    var e = document.getElementById('e-' + id); if (e) e.textContent = msg || '';
+    var i = document.getElementById(id); if (i) i.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+  var MSG = {
+    firstName: 'Ingresa tu nombre.', lastName: 'Ingresa tu apellido.',
+    phone: 'Ingresa un número de WhatsApp válido. En Bolivia: 8 dígitos, empieza con 6 o 7.',
+    email: 'Revisa tu correo electrónico o déjalo vacío.',
+    adult: 'Este registro es solo para mayores de 18 años.',
+    privacy: 'Debes aceptar el aviso de privacidad para continuar.'
+  };
+  function collect() {
+    return {
+      firstName: clean($('#firstName').value), lastName: clean($('#lastName').value),
+      countryCode: $('#countryCode').value, phone: $('#phone').value,
+      email: clean($('#email').value).toLowerCase(),
+      brands: ordered().map(function (b) { return b.name; }), adult: $('#adult').checked, privacy: $('#privacy').checked,
+      marketing: $('#marketing').checked, origin: origin, website: $('#website').value
+    };
+  }
+  function validate(d) {
+    var f = {};
+    if (!NAME_RE.test(d.firstName)) f.firstName = MSG.firstName;
+    if (!NAME_RE.test(d.lastName)) f.lastName = MSG.lastName;
+    if (!phoneOk(d.countryCode, d.phone)) f.phone = MSG.phone;
+    if (d.email && !EMAIL_RE.test(d.email)) f.email = MSG.email;
+    if (!d.adult) f.adult = MSG.adult;
+    if (!d.privacy) f.privacy = MSG.privacy;
+    return f;
+  }
+  ['firstName', 'lastName', 'phone', 'email', 'adult', 'privacy'].forEach(function (id) {
+    var e = document.getElementById(id);
+    e.addEventListener(e.type === 'checkbox' ? 'change' : 'input', function () {
+      if (e.getAttribute('aria-invalid') === 'true') setErr(id, '');
+    });
+  });
+
+  /* ---------- Envío ---------- */
+  function uuid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'r-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+  }
+  var requestId = uuid();
+  var sending = false;
+
+  function post(body) {
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var t = setTimeout(function () { if (ctrl) ctrl.abort(); }, 25000);
+    return fetch(cfg.endpoint, {
+      method: 'POST', redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body), signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) {
+      clearTimeout(t);
+      if (!r.ok) throw new Error('http');
+      return r.json();
+    }, function (e) { clearTimeout(t); throw e; });
+  }
+
+  function busy(on) {
+    sending = on;
+    var b = $('#submit');
+    b.disabled = on; b.classList.toggle('is-loading', on);
+    $('#submit-label').textContent = on ? 'Registrando…' : 'Obtener mi vale';
+  }
+
+  $('#form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (sending) return;
+    $('#alert').textContent = '';
+    var d = collect();
+    var f = validate(d);
+    ['firstName', 'lastName', 'phone', 'email', 'adult', 'privacy'].forEach(function (k) { setErr(k, f[k]); });
+    if (!d.brands.length) { $('#alert').textContent = 'Elige al menos una marca.'; return; }
+    var firstBad = Object.keys(f)[0];
+    if (firstBad) { document.getElementById(firstBad).focus(); return; }
+
+    if (!cfg.endpoint || /PEGAR/.test(cfg.endpoint)) {
+      $('#alert').textContent = 'Modo de prueba: el portal todavía no está conectado a la base de datos, así que este registro no se guardó.';
+      return;
+    }
+
+    d.requestId = requestId;
+    busy(true);
+    post(d).catch(function () { return post(d); }) // un reintento automático; el servidor no duplica
+      .then(function (res) {
+        busy(false);
+        if (res && res.ok && res.voucher) {
+          var s = { firstName: res.firstName || d.firstName, fullName: d.firstName + ' ' + d.lastName, voucher: res.voucher };
+          if (res.repeat) s.fullName = res.fullName || s.firstName;
+          try { localStorage.setItem(STORE, JSON.stringify(s)); } catch (e) {}
+          requestId = uuid();
+          showVoucher(s, !!res.repeat);
+          return;
+        }
+        if (res && res.ok && !res.voucher) {
+          $('#alert').textContent = 'Registro confirmado. ¡Gracias!';
+          return;
+        }
+        if (res && res.error === 'validation' && res.fields) {
+          Object.keys(res.fields).forEach(function (k) { if (MSG[k]) setErr(k, MSG[k]); });
+          $('#alert').textContent = res.fields.brands ? 'Elige al menos una marca.' : 'Revisa los datos marcados.';
+          return;
+        }
+        if (res && res.error === 'busy') {
+          $('#alert').textContent = 'Hay muchas personas registrándose en este momento. Toca el botón de nuevo en unos segundos.';
+          return;
+        }
+        $('#alert').textContent = 'No pudimos confirmar tu registro. Toca el botón de nuevo; si persiste, pide ayuda en el stand.';
+      })
+      .catch(function () {
+        busy(false);
+        $('#alert').textContent = 'Sin conexión: no pudimos confirmar tu registro. Revisa tu señal o Wi-Fi y toca el botón de nuevo. Tus datos siguen aquí.';
+      });
+  });
+})();
+</script>
+</body>
+</html>
