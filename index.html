@@ -167,6 +167,10 @@ details p{margin-top:8px;line-height:1.55}
 .ticket .conds{padding:12px 20px 18px;font-size:12px;color:var(--muted);line-height:1.55}
 .ticket .conds li{list-style:none;padding-left:12px;position:relative}
 .ticket .conds li::before{content:"·";position:absolute;left:0}
+.mail-msg{font-size:14px;line-height:1.5;color:#E9E5DF;background:var(--ink-3);border-radius:var(--r-in);padding:12px 14px;margin:0 0 14px}
+.mail-msg:empty{display:none}
+.mail-msg.warn{background:#3A2320;color:#F2D6D2}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
 .dl-msg{font-size:13px;color:var(--muted-d);text-align:center;margin-top:10px;min-height:20px}
 .note{font-size:14px;color:#CFCAC3;line-height:1.55;padding:16px 0;margin-top:8px;border-top:1px solid var(--line-d)}
 .note strong{color:var(--white);font-weight:600}
@@ -282,8 +286,9 @@ details p{margin-top:8px;line-height:1.55}
       </div>
 
       <div class="field">
-        <label for="email">Correo electrónico <span class="opt">(opcional)</span></label>
-        <input class="in" id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" maxlength="120" aria-describedby="e-email">
+        <label for="email">Correo electrónico <span class="opt" id="email-opt">(opcional)</span></label>
+        <input class="in" id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" maxlength="120" aria-describedby="e-email email-hint">
+        <p class="hint" id="email-hint">Si lo indicas, también te enviamos el vale a tu correo.</p>
         <p class="err" id="e-email"></p>
       </div>
 
@@ -336,13 +341,15 @@ details p{margin-top:8px;line-height:1.55}
       <ul class="conds" id="v-conds"></ul>
     </article>
 
+    <p class="mail-msg" id="mail-msg" role="status"></p>
+    <button class="btn btn--light" type="button" id="next-person" hidden>Registrar a otra persona</button>
     <button class="btn btn--light" type="button" id="download">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
       <span id="download-label">Descargar mi vale</span>
     </button>
     <p class="dl-msg" id="dl-msg" aria-live="polite"></p>
 
-    <p class="note"><strong>Presenta este vale en caja</strong> desde tu teléfono. Si la descarga no funciona en tu teléfono, haz una captura de pantalla. Si vuelves a escanear el QR en este teléfono, verás tu vale de nuevo.</p>
+    <p class="note" id="self-note"><strong>Presenta este vale en caja</strong> desde tu teléfono. Si la descarga no funciona en tu teléfono, haz una captura de pantalla. Si vuelves a escanear el QR en este teléfono, verás tu vale de nuevo.</p>
     <p class="foot">Pedro del Hierro · Women'secret · Springfield · Cortefiel</p>
   </div>
 </section>
@@ -382,7 +389,7 @@ details p{margin-top:8px;line-height:1.55}
   var p = cfg.privacy || {};
   $('#privacy-text').textContent =
     'Responsable del tratamiento: ' + (p.responsable || '') + '. ' +
-    'Usaremos tu nombre, WhatsApp, correo (si lo indicas) y las marcas que elegiste para registrar tu participación en Fashion Experience, emitir tu vale y gestionarlo en tienda. ' +
+    'Usaremos tu nombre, WhatsApp, correo (si lo indicas) y las marcas que elegiste para registrar tu participación en Fashion Experience, emitir tu vale, enviártelo por correo si lo indicas y gestionarlo en tienda. ' +
     'Solo si marcas la casilla de novedades usaremos tus datos para enviarte comunicaciones comerciales, y puedes pedir que dejemos de hacerlo en cualquier momento. ' +
     'Este registro es solo para mayores de 18 años. Para consultar, corregir o eliminar tus datos escribe a ' + (p.contacto || '') + '.';
 
@@ -394,6 +401,21 @@ details p{margin-top:8px;line-height:1.55}
     if (/^[a-z0-9][a-z0-9\-]{0,39}$/.test(o)) origin = o;
     sessionStorage.setItem('fx-origin', origin);
   } catch (e) {}
+
+  /* ---------- Modo stand (?modo=stand): equipo fijo atendido por la activadora ----------
+     Correo obligatorio, el vale no queda guardado en el equipo y se limpia todo para la siguiente persona. */
+  var kiosk = false;
+  try { kiosk = (new URLSearchParams(location.search).get('modo') || '').toLowerCase() === 'stand'; } catch (e) {}
+  if (kiosk) {
+    if (origin === 'directo') origin = 'stand';
+    $('#email-opt').textContent = '';
+    $('#email-hint').textContent = 'Le enviaremos el vale a este correo.';
+    ['firstName', 'lastName', 'phone', 'email'].forEach(function (id) { document.getElementById(id).setAttribute('autocomplete', 'off'); });
+    $('#download').hidden = true;
+    $('#self-note').hidden = true;
+    $('#next-person').hidden = false;
+    $('#next-person').addEventListener('click', function () { location.replace(location.pathname + location.search); });
+  }
 
   /* ---------- Portada: fotos que rotan + logo de la marca ---------- */
   var slides = (cfg.heroSlides || []).filter(function (s) { return brands[s.brand]; });
@@ -495,7 +517,7 @@ details p{margin-top:8px;line-height:1.55}
 
   /* ---------- Vale guardado en este teléfono ---------- */
   function saved() { try { return JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) { return null; } }
-  if (saved()) {
+  if (!kiosk && saved()) {
     $('#see-voucher').hidden = false;
     $('#see-voucher').addEventListener('click', function () { var s = saved(); if (s) showVoucher(s, false); });
   }
@@ -519,8 +541,19 @@ details p{margin-top:8px;line-height:1.55}
     var ul = $('#v-conds'); ul.textContent = '';
     (v.conditions || []).forEach(function (c) { ul.appendChild(el('li', null, c)); });
     $('#dl-msg').textContent = '';
+    var mm = $('#mail-msg'), st = s.emailStatus, to = s.emailTo || '';
+    mm.className = 'mail-msg'; mm.textContent = '';
+    if (st === 'enviado') mm.textContent = 'Te enviamos este vale a ' + to + '. Si no lo ves en unos minutos, revisa la carpeta de spam o promociones.';
+    else if (st === 'ya_enviado') mm.textContent = 'Este vale ya fue enviado antes a ' + to + '.';
+    else if (st === 'error' || st === 'cuota') {
+      mm.className = 'mail-msg warn';
+      mm.textContent = kiosk ? 'No pudimos enviar el correo. Toma una foto del vale con tu teléfono para presentarlo en caja.'
+                             : 'No pudimos enviar el correo. Descarga tu vale o haz una captura de pantalla.';
+    }
     go('s-voucher');
+    if (kiosk) { clearTimeout(kioskTimer); kioskTimer = setTimeout(function () { location.replace(location.pathname + location.search); }, 180000); }
   }
+  var kioskTimer = null;
 
   /* ---------- Descargar el vale como imagen ---------- */
   function loadImg(src) {
@@ -665,6 +698,7 @@ details p{margin-top:8px;line-height:1.55}
     firstName: 'Ingresa tu nombre.', lastName: 'Ingresa tu apellido.',
     phone: 'Ingresa un número de WhatsApp válido. En Bolivia: 8 dígitos, empieza con 6 o 7.',
     email: 'Revisa tu correo electrónico o déjalo vacío.',
+    emailKiosk: 'Ingresa el correo para enviarte el vale.',
     adult: 'Este registro es solo para mayores de 18 años.',
     privacy: 'Debes aceptar el aviso de privacidad para continuar.'
   };
@@ -682,7 +716,8 @@ details p{margin-top:8px;line-height:1.55}
     if (!NAME_RE.test(d.firstName)) f.firstName = MSG.firstName;
     if (!NAME_RE.test(d.lastName)) f.lastName = MSG.lastName;
     if (!phoneOk(d.countryCode, d.phone)) f.phone = MSG.phone;
-    if (d.email && !EMAIL_RE.test(d.email)) f.email = MSG.email;
+    if (kiosk && !d.email) f.email = MSG.emailKiosk;
+    else if (d.email && !EMAIL_RE.test(d.email)) f.email = MSG.email;
     if (!d.adult) f.adult = MSG.adult;
     if (!d.privacy) f.privacy = MSG.privacy;
     return f;
@@ -747,7 +782,8 @@ details p{margin-top:8px;line-height:1.55}
         if (res && res.ok && res.voucher) {
           var s = { firstName: res.firstName || d.firstName, fullName: d.firstName + ' ' + d.lastName, voucher: res.voucher };
           if (res.repeat) s.fullName = res.fullName || s.firstName;
-          try { localStorage.setItem(STORE, JSON.stringify(s)); } catch (e) {}
+          if (!kiosk) { try { localStorage.setItem(STORE, JSON.stringify(s)); } catch (e) {} }
+          s.emailStatus = res.emailStatus; s.emailTo = res.emailTo;
           requestId = uuid();
           showVoucher(s, !!res.repeat);
           return;
